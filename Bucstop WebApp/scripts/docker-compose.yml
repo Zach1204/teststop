@@ -1,0 +1,64 @@
+version: '3.4'
+services:
+  webapp:
+    image: bucstop-webapp
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Gateway=http://gateway:80
+      - Microservices__Snake=http://snake:80
+      - Microservices__Pong=http://pong:80
+      - Microservices__Tetris=http://tetris:80
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+    ports:
+      - "8080:80"
+      - "8443:443"
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+  gateway:
+    image: bucstop-gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - MicroserviceUrls__Snake=http://snake:80
+      - MicroserviceUrls__Pong=http://pong:80
+      - MicroserviceUrls__Tetris=http://tetris:80
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+    ports:
+      - "8081:80"
+      - "8444:443"
+    depends_on:
+      - snake
+      - pong
+      - tetris
+    restart: unless-stopped
+
+  snake:
+    image: bucstop-snake
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+    ports:
+      - "8082:80"
+      - "8445:443"
+    restart: unless-stopped
+
+  pong:
+    image: bucstop-pong
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+    ports:
+      - "8083:80"
+      - "8446:443"
+    restart: unless-stopped
+
+  tetris:
+    image: bucstop-tetris
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+    ports:
+      - "8084:80"
+      - "8447:443"
+    restart: unless-stopped
