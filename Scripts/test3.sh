@@ -1,3 +1,63 @@
+#!/bin/bash
+
+# We're already in the teststop directory
+echo "Starting deployment from $(pwd)"
+
+# Stop and remove all containers
+echo "Stopping and removing containers..."
+docker-compose down
+docker rm -f $(docker ps -a -q) 2>/dev/null || true
+
+# Create environment override settings for HTTP only
+cat > webapp-environment-override.json << 'EOL'
+{
+  "Gateway": "http://api-gateway:80",
+  "Microservices": {
+    "Snake": "http://snake:80",
+    "Pong": "http://pong:80",
+    "Tetris": "http://tetris:80"
+  },
+  "Kestrel": {
+    "Endpoints": {
+      "Http": {
+        "Url": "http://0.0.0.0:80"
+      }
+    }
+  }
+}
+EOL
+
+cat > gateway-environment-override.json << 'EOL'
+{
+  "MicroserviceUrls": {
+    "Snake": "http://snake:80",
+    "Pong": "http://pong:80",
+    "Tetris": "http://tetris:80"
+  },
+  "Kestrel": {
+    "Endpoints": {
+      "Http": {
+        "Url": "http://0.0.0.0:80"
+      }
+    }
+  }
+}
+EOL
+
+cat > service-environment-override.json << 'EOL'
+{
+  "Kestrel": {
+    "Endpoints": {
+      "Http": {
+        "Url": "http://0.0.0.0:80"
+      }
+    }
+  }
+}
+EOL
+
+# Create updated docker-compose.yml with correct paths
+cat > docker-compose.yml << 'EOL'
 version: '3.4'
 services:
   bucstop:
@@ -95,3 +155,13 @@ services:
 networks:
   bucstop-network:
     driver: bridge
+EOL
+
+# Build and start containers
+echo "Building and starting containers..."
+docker-compose build --no-cache
+docker-compose up -d
+
+echo "Checking container status..."
+sleep 5
+docker ps

@@ -1,7 +1,8 @@
+version: '3.4'
 services:
   bucstop:
     build:
-      context: ./Bucstop WebApp/BucStop
+      context: /home/ubuntu/teststop/Bucstop\ WebApp/BucStop
       dockerfile: Dockerfile
     container_name: bucstop
     ports:
@@ -9,17 +10,19 @@ services:
     networks:
       - bucstop-network
     environment:
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
       - DOTNET_USE_POLLING_FILE_WATCHER=1
-      # Disable HTTPS to avoid certificate issues
       - ASPNETCORE_HTTPS_PORT=
+    volumes:
+      - /home/ubuntu/teststop/webapp-environment-override.json:/app/appsettings.Production.json
     depends_on:
       - api-gateway
-    restart: unless-stopped
+    restart: on-failure:3
 
   api-gateway:
     build:
-      context: ./Team-3-BucStop_APIGateway/APIGateway
+      context: /home/ubuntu/teststop/Team-3-BucStop_APIGateway/APIGateway
       dockerfile: Dockerfile
     container_name: api-gateway
     ports:
@@ -27,18 +30,20 @@ services:
     networks:
       - bucstop-network
     environment:
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
-      # Disable HTTPS to avoid certificate issues
       - ASPNETCORE_HTTPS_PORT=
+    volumes:
+      - /home/ubuntu/teststop/gateway-environment-override.json:/app/appsettings.Production.json
     depends_on:
       - snake
       - pong
       - tetris
-    restart: unless-stopped
+    restart: on-failure:3
 
   snake:
     build:
-      context: ./Team-3-BucStop_Snake/Snake
+      context: /home/ubuntu/teststop/Team-3-BucStop_Snake/Snake
       dockerfile: Dockerfile
     container_name: game-snake
     ports:
@@ -46,14 +51,16 @@ services:
     networks:
       - bucstop-network
     environment:
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
-      # Disable HTTPS to avoid certificate issues
       - ASPNETCORE_HTTPS_PORT=
-    restart: unless-stopped
+    volumes:
+      - /home/ubuntu/teststop/service-environment-override.json:/app/appsettings.Production.json
+    restart: on-failure:3
 
   pong:
     build:
-      context: ./Team-3-BucStop_Pong/Pong
+      context: /home/ubuntu/teststop/Team-3-BucStop_Pong/Pong
       dockerfile: Dockerfile
     container_name: game-pong
     ports:
@@ -61,14 +68,16 @@ services:
     networks:
       - bucstop-network
     environment:
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
-      # Disable HTTPS to avoid certificate issues
       - ASPNETCORE_HTTPS_PORT=
-    restart: unless-stopped
+    volumes:
+      - /home/ubuntu/teststop/service-environment-override.json:/app/appsettings.Production.json
+    restart: on-failure:3
 
   tetris:
     build:
-      context: ./Team-3-BucStop_Tetris/Tetris
+      context: /home/ubuntu/teststop/Team-3-BucStop_Tetris/Tetris
       dockerfile: Dockerfile
     container_name: game-tetris
     ports:
@@ -76,10 +85,12 @@ services:
     networks:
       - bucstop-network
     environment:
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
-      # Disable HTTPS to avoid certificate issues
       - ASPNETCORE_HTTPS_PORT=
-    restart: unless-stopped
+    volumes:
+      - /home/ubuntu/teststop/service-environment-override.json:/app/appsettings.Production.json
+    restart: on-failure:3
 
 networks:
   bucstop-network:

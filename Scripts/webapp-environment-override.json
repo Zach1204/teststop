@@ -1,0 +1,15 @@
+{
+  "Gateway": "http://api-gateway:80",
+  "Microservices": {
+    "Snake": "http://snake:80",
+    "Pong": "http://pong:80",
+    "Tetris": "http://tetris:80"
+  },
+  "Kestrel": {
+    "Endpoints": {
+      "Http": {
+        "Url": "http://0.0.0.0:80"
+      }
+    }
+  }
+}

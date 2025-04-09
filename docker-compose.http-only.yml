@@ -1,0 +1,87 @@
+version: '3.4'
+services:
+  bucstop:
+    image: bucstop-webapp:latest
+    container_name: bucstop
+    ports:
+      - "8080:80"
+    networks:
+      - bucstop-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_HTTPS_PORT=
+      - Kestrel__EndpointDefaults__Protocols=Http1
+      - Gateway=http://api-gateway:80
+      - Microservices__Snake=http://snake:80
+      - Microservices__Pong=http://pong:80
+      - Microservices__Tetris=http://tetris:80
+      - ApiHeartbeat__BaseUrl=http://api-gateway:80
+    restart: unless-stopped
+
+  api-gateway:
+    image: bucstop-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "8081:80"
+    networks:
+      - bucstop-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_HTTPS_PORT=
+      - Kestrel__EndpointDefaults__Protocols=Http1
+      - MicroserviceUrls__Snake=http://snake:80
+      - MicroserviceUrls__Pong=http://pong:80
+      - MicroserviceUrls__Tetris=http://tetris:80
+    depends_on:
+      - snake
+      - pong
+      - tetris
+    restart: unless-stopped
+
+  snake:
+    image: bucstop-snake:latest
+    container_name: snake
+    ports:
+      - "8082:80"
+    networks:
+      - bucstop-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_HTTPS_PORT=
+      - Kestrel__EndpointDefaults__Protocols=Http1
+    restart: unless-stopped
+
+  pong:
+    image: bucstop-pong:latest
+    container_name: pong
+    ports:
+      - "8083:80"
+    networks:
+      - bucstop-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_HTTPS_PORT=
+      - Kestrel__EndpointDefaults__Protocols=Http1
+    restart: unless-stopped
+
+  tetris:
+    image: bucstop-tetris:latest
+    container_name: tetris
+    ports:
+      - "8084:80"
+    networks:
+      - bucstop-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_HTTPS_PORT=
+      - Kestrel__EndpointDefaults__Protocols=Http1
+    restart: unless-stopped
+
+networks:
+  bucstop-network:
+    driver: bridge
